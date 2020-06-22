@@ -60,7 +60,7 @@ jobs:
           secure: oVZ0sWa7p9w0sMlxVWLCOkCkcwEBb7uMHz4lYtBrKyAaisHi6Cbz3muQHHmv+bZ116KJea+UcrN/gaCIs5Mchfb6WjLKJn7fFaWxdsX2RncfNR8QJ14mXpJwJAPV9IEnGK01CboSt5kT5koI8oaISprt6sFTnIWliCsBESniJZH9X3rC62cELZOodpGUm7tSd6+cjKwNB75Hgxv5nQREgi8W6GAo7EKga4pTqfD08tvYPGfp5gkZbvUTt04iIfV48nBjBe6O7e1+3IHycAOpPTOQPNRntUvRxlWGo5BI7pmaVlZfZ38LR2aNRw8I32PeugIM6Hhuq5FtecnzpkTBoUpz9gEnrdvPosW6kkOHUMaaRSEpzam6VCdS0KCwzFcxqalQI01cn+Xl1yeSASeLvP9UbAykZ3bsA4FqbdLbkzWnVetbU0CDfMz8tamxOdikExdtrfCl/6hxM75wv+tjLL7UYfaEXdt6Dno0xVebH4om6JuObVMpVz8+2DJzKYRFt94ZL/7HAVAAh8n7xMwqoH+9CpggGk2Q8wp3pq0SM/zV9rut7tgV7BxOoLCr5WZdr8I3lwMc+vqZrNZ80RSez6m6wQu/krpFacIFNsAQ5A09Mi8dcpVwn4y30xqcPVFIV1L/XWkiJVRt+rUX1P90QFZDpbrUl031ISjVbyfvXIg=
         file_glob: true
         file: dist/*
-        name: cloudshell-template $GIT_TAG
+        name: cloudshell-networking-cisco-nxos $GIT_TAG
         target_commitish: master
         on:
           branch: master

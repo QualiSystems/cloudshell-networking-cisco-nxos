@@ -1,3 +1,2 @@
-mock; python_version <= '2.7'
-nose
-coverage
+pytest~=6.0
+pytest-cov~=2.10

@@ -61,5 +61,9 @@ target/
 #Ipython Notebook
 .ipynb_checkpoints
 .pypirc
+/*.pyproj
+/.pytest_cache
+/.vs
+*.sln
 
 .idea/

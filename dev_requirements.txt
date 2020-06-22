@@ -2,4 +2,5 @@ pre-commit
 tox
 tox-factor
 -r test_requirements.txt
---extra-index-url https://test.pypi.org/simple -r requirements.txt
+-e git+https://github.com/QualiSystems/cloudshell-networking-cisco.git@dev#egg=cloudshell-networking-cisco
+-e git+https://github.com/QualiSystems/cloudshell-automation-api.git@dev#egg=cloudshell-automation-api

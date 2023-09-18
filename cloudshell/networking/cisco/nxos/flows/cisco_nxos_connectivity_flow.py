@@ -1,11 +1,10 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from cloudshell.networking.cisco.flows.cisco_connectivity_flow import (
     CiscoConnectivityFlow,
 )
-from cloudshell.networking.cisco.nxos.command_actions.nxos_add_remove_vlan_actions \
-    import (
+
+from cloudshell.networking.cisco.nxos.command_actions.nxos_add_remove_vlan_actions import (
     CiscoNXOSAddRemoveVlanActions,
 )
 from cloudshell.networking.cisco.nxos.command_actions.nxos_iface_actions import (
@@ -14,7 +13,6 @@ from cloudshell.networking.cisco.nxos.command_actions.nxos_iface_actions import 
 
 
 class CiscoNXOSConnectivityFlow(CiscoConnectivityFlow):
-
     def _get_vlan_actions(self, config_session):
         return CiscoNXOSAddRemoveVlanActions(config_session, self._logger)
 

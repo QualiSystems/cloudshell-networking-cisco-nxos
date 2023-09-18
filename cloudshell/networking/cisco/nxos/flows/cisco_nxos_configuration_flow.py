@@ -7,8 +7,10 @@ from cloudshell.networking.cisco.command_actions.system_actions import SystemAct
 from cloudshell.networking.cisco.flows.cisco_configuration_flow import (
     CiscoConfigurationFlow,
 )
-from cloudshell.shell.flows.configuration.basic_flow import ConfigurationType, \
-    RestoreMethod
+from cloudshell.shell.flows.configuration.basic_flow import (
+    ConfigurationType,
+    RestoreMethod,
+)
 from cloudshell.shell.flows.utils.url import BasicLocalUrl, RemoteURL
 
 
@@ -17,7 +19,6 @@ class CiscoNXOSConfigurationFlow(CiscoConfigurationFlow):
     RUNNING_LOCATION = BasicLocalUrl.from_str("running-config", "/")
     BACKUP_STARTUP_LOCATION = BasicLocalUrl.from_str("backup-sc", "bootflash:")
     TEMP_CONFIG_LOCATION = BasicLocalUrl.from_str("local-copy", "bootflash:")
-    # ssssss = BasicLocalUrl.from_str(STARTUP_LOCATION, "/")
 
     def _restore_flow(
         self,
@@ -51,7 +52,7 @@ class CiscoNXOSConfigurationFlow(CiscoConfigurationFlow):
                 if self._cli_handler.cli_type.lower() != "console":
                     raise Exception(
                         self.__class__.__name__,
-                        "Unsupported cli session type: {0}. "
+                        "Unsupported cli session type: {}. "
                         "Only Console allowed for restore override".format(
                             self._cli_handler.cli_type.lower()
                         ),
@@ -76,8 +77,7 @@ class CiscoNXOSConfigurationFlow(CiscoConfigurationFlow):
                     is_backup_created = True
                 except Exception as e:
                     self._logger.warning(
-                        "Failed to backup startup-config. "
-                        "Error: {}".format(str(e))
+                        "Failed to backup startup-config. " "Error: {}".format(str(e))
                     )
 
                 restore_action.write_erase()
@@ -102,8 +102,10 @@ class CiscoNXOSConfigurationFlow(CiscoConfigurationFlow):
                         timeout=200,
                     )
 
-            elif "startup" in configuration_type.value and restore_method == \
-                    RestoreMethod.APPEND:
+            elif (
+                "startup" in configuration_type.value
+                and restore_method == RestoreMethod.APPEND
+            ):
                 raise Exception(
                     self.__class__.__name__,
                     "Restore of startup config in append mode is not supported",
@@ -123,8 +125,10 @@ class CiscoNXOSConfigurationFlow(CiscoConfigurationFlow):
         action_map = OrderedDict()
         # Proceed with reload? [confirm]
         action_map[
-            (r"[Aa]bort\s+[Pp]ower\s+[Oo]n\s+[Aa]uto\s+"
-             r"[Pp]rovisioning.*[\(\[].*[Nn]o[\]\)]")
+            (
+                r"[Aa]bort\s+[Pp]ower\s+[Oo]n\s+[Aa]uto\s+"
+                r"[Pp]rovisioning.*[\(\[].*[Nn]o[\]\)]"
+            )
         ] = lambda session, logger: session.send_line("yes", logger)
         action_map[
             r"[Ee]nter\s+system\s+maintenance\s+mode.*[\[\(][Yy](es)?\/[Nn](o)?[\)\]] "

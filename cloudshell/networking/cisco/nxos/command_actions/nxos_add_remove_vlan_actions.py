@@ -1,11 +1,11 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 from cloudshell.cli.command_template.command_template_executor import (
     CommandTemplateExecutor,
 )
 from cloudshell.networking.cisco.command_actions.add_remove_vlan_actions import (
     AddRemoveVlanActions,
 )
+
 from cloudshell.networking.cisco.nxos.command_templates import (
     nxos_add_remove_vlan as nxos_vlan_cmd_template,
 )
@@ -21,7 +21,7 @@ class CiscoNXOSAddRemoveVlanActions(AddRemoveVlanActions):
         :type logger: Logger
         :return:
         """
-        super(CiscoNXOSAddRemoveVlanActions, self).__init__(cli_service, logger)
+        super().__init__(cli_service, logger)
 
     def _get_l2_protocol_tunnel_cmd(self, action_map=None, error_map=None):
         return CommandTemplateExecutor(

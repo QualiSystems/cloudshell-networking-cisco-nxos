@@ -9,7 +9,7 @@ if StrictVersion(setuptools_version) < StrictVersion("40.0"):
 
     python = sys.executable
     try:
-        s = os.system('{} -m pip install "setuptools>=40"'.format(python))
+        s = os.system(f'{python} -m pip install "setuptools>=40"')
         if s != 0:
             raise Exception
     except Exception:

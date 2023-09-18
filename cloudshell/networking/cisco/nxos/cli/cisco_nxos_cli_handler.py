@@ -1,12 +1,13 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 from typing import ClassVar
 
-from cloudshell.cli.factory.session_factory import SessionFactory, \
-    GenericSessionFactory, ConsoleSessionFactory
+from cloudshell.cli.factory.session_factory import (
+    ConsoleSessionFactory,
+    GenericSessionFactory,
+    SessionFactory,
+)
 from cloudshell.cli.service.cli_service_impl import CliServiceImpl
 from cloudshell.cli.session.console_ssh import ConsoleSSHSession
-from cloudshell.cli.session.console_telnet import ConsoleTelnetSession
 from cloudshell.cli.session.ssh_session import SSHSession
 from cloudshell.cli.session.telnet_session import TelnetSession
 from cloudshell.networking.cisco.cli.cisco_cli_handler import CiscoCli, CiscoCliHandler
@@ -14,8 +15,10 @@ from cloudshell.networking.cisco.cli.cisco_command_modes import (
     ConfigCommandMode,
     EnableCommandMode,
 )
-from cloudshell.networking.cisco.nxos.cli.cisco_nxos_console_sessions import \
-    NXOSConsoleTelnetSession
+
+from cloudshell.networking.cisco.nxos.cli.cisco_nxos_console_sessions import (
+    NXOSConsoleTelnetSession,
+)
 
 
 class CiscoNXOSCli(CiscoCli):
@@ -35,6 +38,7 @@ class CiscoNXOSCliHandler(CiscoCliHandler):
             NXOSConsoleTelnetSession, session_kwargs={"start_with_new_line": True}
         ),
     )
+
     @property
     def cli_type(self):
         return self._cli_type

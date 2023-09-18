@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import time
 from collections import OrderedDict
@@ -8,17 +7,25 @@ from cloudshell.networking.cisco.command_actions.system_actions import SystemAct
 from cloudshell.networking.cisco.flows.cisco_configuration_flow import (
     CiscoConfigurationFlow,
 )
+from cloudshell.shell.flows.configuration.basic_flow import ConfigurationType, \
+    RestoreMethod
+from cloudshell.shell.flows.utils.url import BasicLocalUrl, RemoteURL
 
 
 class CiscoNXOSConfigurationFlow(CiscoConfigurationFlow):
-    STARTUP_LOCATION = "startup-config"
-    RUNNING_LOCATION = "running-config"
-    BACKUP_STARTUP_LOCATION = "bootflash:backup-sc"
-    TEMP_STARTUP_LOCATION = "bootflash:local-copy"
+    STARTUP_LOCATION = BasicLocalUrl.from_str("startup-config", "/")
+    RUNNING_LOCATION = BasicLocalUrl.from_str("running-config", "/")
+    BACKUP_STARTUP_LOCATION = BasicLocalUrl.from_str("backup-sc", "bootflash:")
+    TEMP_CONFIG_LOCATION = BasicLocalUrl.from_str("local-copy", "bootflash:")
+    # ssssss = BasicLocalUrl.from_str(STARTUP_LOCATION, "/")
 
     def _restore_flow(
-        self, path, configuration_type, restore_method, vrf_management_name
-    ):
+        self,
+        config_path: RemoteURL | BasicLocalUrl,
+        configuration_type: ConfigurationType,
+        restore_method: RestoreMethod,
+        vrf_management_name: str | None,
+    ) -> None:
         """Execute flow which save selected file to the provided destination.
 
         :param path: the path to the configuration file, including the
@@ -30,16 +37,17 @@ class CiscoNXOSConfigurationFlow(CiscoConfigurationFlow):
                                    values are startup and running
         :param vrf_management_name: Virtual Routing and Forwarding Name
         """
-        if "-config" not in configuration_type:
-            configuration_type += "-config"
-
+        config_type = configuration_type.value
+        if "-config" not in config_type:
+            config_type += "-config"
         with self._cli_handler.get_cli_service(
             self._cli_handler.enable_mode
         ) as enable_session:
             restore_action = SystemActions(enable_session, self._logger)
             reload_action_map = self._prepare_reload_act_map()
 
-            if restore_method == "override":
+            if restore_method.value == "override":
+                is_backup_created = False
                 if self._cli_handler.cli_type.lower() != "console":
                     raise Exception(
                         self.__class__.__name__,
@@ -50,47 +58,64 @@ class CiscoNXOSConfigurationFlow(CiscoConfigurationFlow):
                     )
 
                 restore_action.copy(
-                    source=path,
-                    destination=self.TEMP_STARTUP_LOCATION,
+                    source=config_path.safe_url,
+                    destination=self.TEMP_CONFIG_LOCATION.filename,
                     vrf=vrf_management_name,
                     action_map=restore_action.prepare_action_map(
-                        path, self.TEMP_STARTUP_LOCATION
+                        config_path, self.TEMP_CONFIG_LOCATION
                     ),
                 )
+                try:
+                    restore_action.copy(
+                        source=self.STARTUP_LOCATION.filename,
+                        destination=self.BACKUP_STARTUP_LOCATION.filename,
+                        action_map=restore_action.prepare_action_map(
+                            self.STARTUP_LOCATION, self.BACKUP_STARTUP_LOCATION
+                        ),
+                    )
+                    is_backup_created = True
+                except Exception as e:
+                    self._logger.warning(
+                        "Failed to backup startup-config. "
+                        "Error: {}".format(str(e))
+                    )
 
                 restore_action.write_erase()
                 restore_action.reload_device_via_console(action_map=reload_action_map)
 
                 restore_action.copy(
-                    source=self.TEMP_STARTUP_LOCATION,
-                    destination=self.RUNNING_LOCATION,
+                    source=self.TEMP_CONFIG_LOCATION.filename,
+                    destination=self.RUNNING_LOCATION.filename,
                     action_map=restore_action.prepare_action_map(
-                        self.TEMP_STARTUP_LOCATION, self.RUNNING_LOCATION
+                        self.TEMP_CONFIG_LOCATION, self.RUNNING_LOCATION
                     ),
                 )
 
                 time.sleep(5)
-                restore_action.copy(
-                    source=self.RUNNING_LOCATION,
-                    destination=self.STARTUP_LOCATION,
-                    action_map=restore_action.prepare_action_map(
-                        self.RUNNING_LOCATION, self.STARTUP_LOCATION
-                    ),
-                    timeout=200,
-                )
+                if is_backup_created:
+                    restore_action.copy(
+                        source=self.BACKUP_STARTUP_LOCATION.filename,
+                        destination=self.STARTUP_LOCATION.filename,
+                        action_map=restore_action.prepare_action_map(
+                            self.BACKUP_STARTUP_LOCATION, self.STARTUP_LOCATION
+                        ),
+                        timeout=200,
+                    )
 
-            elif "startup" in configuration_type:
+            elif "startup" in configuration_type.value and restore_method == \
+                    RestoreMethod.APPEND:
                 raise Exception(
                     self.__class__.__name__,
                     "Restore of startup config in append mode is not supported",
                 )
             else:
+                target_config_path = BasicLocalUrl.from_str(config_type, "/")
                 restore_action.copy(
-                    source=path,
-                    destination=configuration_type,
+                    source=config_path.safe_url,
+                    destination=target_config_path.filename,
                     vrf=vrf_management_name,
                     action_map=restore_action.prepare_action_map(
-                        path, configuration_type
+                        config_path, target_config_path
                     ),
                 )
 
@@ -124,7 +149,7 @@ class CiscoNXOSConfigurationFlow(CiscoConfigurationFlow):
         action_map[
             "[Ll]ogin:|[Uu]ser:|[Uu]sername:"
         ] = lambda session, logger: session.send_line("admin", logger)
-        action_map["[Pp]assword.*:"] = lambda session, logger: session.send_line(
+        action_map["[Pp]assword.*(:)?"] = lambda session, logger: session.send_line(
             self._cli_handler.password, logger
         )
         action_map[r"\[confirm\]"] = lambda session, logger: session.send_line(

@@ -14,8 +14,6 @@ from cloudshell.networking.cisco.nxos.command_actions.nxos_iface_actions import 
 
 
 class CiscoNXOSConnectivityFlow(CiscoConnectivityFlow):
-    def __init__(self, cli_handler, logger):
-        super(CiscoNXOSConnectivityFlow, self).__init__(cli_handler, logger)
 
     def _get_vlan_actions(self, config_session):
         return CiscoNXOSAddRemoveVlanActions(config_session, self._logger)

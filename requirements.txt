@@ -1,1 +1,1 @@
-cloudshell-networking-cisco>=6.0,<7.0
+cloudshell-networking-cisco>=7.0,<8.0
